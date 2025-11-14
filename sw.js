@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lathe-tool-setup-v3';
+const CACHE_NAME = 'lathe-tool-setup-v4';
 const ASSETS = [
   './',
   './index.html',

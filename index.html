@@ -5,8 +5,11 @@
 <title>手研ぎバイト取付計算</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f5f5f5">
+
+<!-- PWA 用 -->
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
   body{
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -19,6 +22,7 @@
     margin:0 0 .8rem;
   }
 
+  /* テーブル＋画像の横並び */
   .layout{
     display:flex;
     flex-wrap:nowrap;
@@ -160,7 +164,7 @@
     </p>
   </div>
 
-  <!-- 刃物画像 -->
+  <!-- 刃物画像（blade.png を同じフォルダに置く）-->
   <div class="img-wrap">
     <img src="blade.png" alt="刃物図">
   </div>
@@ -182,21 +186,24 @@ X3.000 Z10.0;
 </div>
 
 <script>
+const STORAGE_KEY = 'lathe_tool_setup_v1';
+
 function fmt(v){
   if (Number.isNaN(v)) return "";
   return v.toFixed(3);
 }
 
 function update(){
-  const at   = parseFloat(document.getElementById("at").value);
-  const w    = parseFloat(document.getElementById("w").value);
-  const cen  = parseFloat(document.getElementById("center").value);
-  const dia  = parseFloat(document.getElementById("dia").value);
+  const at   = parseFloat(document.getElementById("at").value) || 0;
+  const w    = parseFloat(document.getElementById("w").value) || 0;
+  const cen  = parseFloat(document.getElementById("center").value) || 0;
+  const dia  = parseFloat(document.getElementById("dia").value) || 0;
 
   const x = (at * 2) + dia;
 
   document.getElementById("xCell").textContent = fmt(x);
 
+  // 手順の数値反映
   document.getElementById("step3").textContent =
     "③ Z軸の補正値を " + fmt(w) + " に合わせます";
 
@@ -210,13 +217,47 @@ X${fmt(x)} Z10.0;`;
   document.getElementById("gcode").textContent = gcode;
 }
 
+function saveState(){
+  try{
+    const data = {
+      at: document.getElementById("at").value,
+      w: document.getElementById("w").value,
+      center: document.getElementById("center").value,
+      dia: document.getElementById("dia").value
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(e){
+    console.log('saveState error:', e);
+  }
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    if(data.at   != null) document.getElementById("at").value     = data.at;
+    if(data.w    != null) document.getElementById("w").value      = data.w;
+    if(data.center != null) document.getElementById("center").value = data.center;
+    if(data.dia  != null) document.getElementById("dia").value    = data.dia;
+  }catch(e){
+    console.log('loadState error:', e);
+  }
+}
+
+// 入力イベント：更新＋保存
 document.querySelectorAll("input").forEach(el=>{
-  el.addEventListener("input", update);
+  el.addEventListener("input", () => {
+    update();
+    saveState();
+  });
 });
 
+// 起動時：保存値を読み込み → 計算反映
+loadState();
 update();
 
-// ▼ Service Worker 登録
+// ▼ Service Worker 登録（PWA 用）
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(err => {

@@ -129,34 +129,34 @@
       <tr>
         <th class="label">@</th>
         <td class="value">
-          <input id="at" type="number" step="0.001" value="0.000">
+          <input id="at" type="number" step="0.001" value="0.896">
           <span class="unit">mm</span>
         </td>
       </tr>
       <tr>
         <th class="label">W</th>
         <td class="value">
-          <input id="w" type="number" step="0.001" value="0.000">
+          <input id="w" type="number" step="0.001" value="0.086">
           <span class="unit">mm</span>
         </td>
       </tr>
       <tr>
         <th class="label">芯高</th>
         <td class="value">
-          <input id="center" type="number" step="0.001" value="0.000">
+          <input id="center" type="number" step="0.001" value="0.570">
           <span class="unit">mm</span>
         </td>
       </tr>
       <tr>
         <th class="label">鋼材径</th>
         <td class="value">
-          <input id="dia" type="number" step="0.001" value="3.000">
+          <input id="dia" type="number" step="0.001" value="3.560">
           <span class="unit">mm</span>
         </td>
       </tr>
       <tr>
         <th class="label">X</th>
-        <td class="calc" id="xCell">3.000</td>
+        <td class="calc" id="xCell">5.352</td>
       </tr>
     </table>
     <p style="font-size:.8rem;margin-top:.3rem;">
@@ -173,16 +173,33 @@
 <div class="steps">
   <p id="step1">① 使用済み刃具をアンクランプし取り出します</p>
   <p id="step2">② X軸の補正値を 0.000 に合わせます</p>
-  <p id="step3">③ Z軸の補正値を 0.000 に合わせます</p>
-  <p id="step4">④ 芯高の補正値を 0.000 に合わせます</p>
+  <p id="step3">③ Z軸の補正値を 0.086 に合わせます</p>
+  <p id="step4">④ 芯高の補正値を 0.570 に合わせます</p>
   <p id="step5">⑤ JOG操作でメインチャックを把握します</p>
   <p id="step6">⑥ MDI操作で以下のプログラムを実行します</p>
   <div class="code" id="gcode">
 G0 X38.0;
 T0400;
-X3.000 Z10.0;
+X5.352 Z10.0;
   </div>
   <p id="step7">⑦ 刃具の端面を鋼材に当てた状態でクランプします</p>
+
+  <p id="step8">⑧ MDI操作で以下のプログラムを実行します</p>
+  <div class="code" id="gcode8">
+X38.0;
+T0505;
+G99 M3 S2000;
+X9.0;
+  </div>
+
+  <p id="step9">⑨ クーラントを ON にします</p>
+
+  <p id="step10">⑩ MDI操作で以下のプログラムを実行します</p>
+  <div class="code">
+G1 X-1.0 F0.02;
+M5;
+M11;
+  </div>
 </div>
 
 <script>
@@ -200,7 +217,9 @@ function update(){
   const dia  = parseFloat(document.getElementById("dia").value) || 0;
 
   const x = (at * 2) + dia;
+  const xApproach = Math.ceil(dia + 1); // 材料径+1 を小数切り上げ
 
+  // メインX表示
   document.getElementById("xCell").textContent = fmt(x);
 
   // 手順の数値反映
@@ -210,11 +229,20 @@ function update(){
   document.getElementById("step4").textContent =
     "④ 芯高の補正値を " + fmt(cen) + " に合わせます";
 
+  // ⑥ のGコード
   const gcode =
 `G0 X38.0;
 T0400;
 X${fmt(x)} Z10.0;`;
   document.getElementById("gcode").textContent = gcode;
+
+  // ⑧ のGコード（材料径から計算）
+  const gcode2 =
+`X38.0;
+T0505;
+G99 M3 S2000;
+X${xApproach}.0;`;
+  document.getElementById("gcode8").textContent = gcode2;
 }
 
 function saveState(){

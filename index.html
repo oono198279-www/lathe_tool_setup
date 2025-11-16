@@ -76,8 +76,8 @@
     padding:.5rem;
     border-radius:.5rem;
     box-shadow:0 0 4px rgba(0,0,0,.08);
-    flex:0 0 120px;
-    max-width:120px;
+    flex:0 0 140px;
+    max-width:140px;
   }
   .img-wrap img{
     width:100%;
@@ -108,6 +108,23 @@
     white-space:pre;
   }
 
+  .actions{
+    margin-top:.8rem;
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+  }
+  .actions button{
+    padding:.4rem .8rem;
+    font-size:.9rem;
+    border-radius:.3rem;
+    border:1px solid #888;
+    background:#f0f0f0;
+  }
+  .actions button:active{
+    background:#e0e0e0;
+  }
+
   @media (max-width:360px){
     .layout{
       flex-wrap:wrap;
@@ -120,7 +137,7 @@
 </style>
 </head>
 <body>
-<h1>手研ぎバイト取付計算</h1>
+<h1>手研ぎバイト取付用計算シート</h1>
 
 <div class="layout">
   <!-- テーブル -->
@@ -156,7 +173,7 @@
       </tr>
       <tr>
         <th class="label">X</th>
-        <td class="calc" id="xCell">3.000</td>
+        <td class="calc" id="xCell">4.000</td>
       </tr>
     </table>
     <p style="font-size:.8rem;margin-top:.3rem;">
@@ -189,16 +206,22 @@ X3.000 Z10.0;
 X38.0;
 T0505;
 G99 M3 S2000;
-X9.0;
+X4.0;
   </div>
 
-  <p id="step9">⑨ クーラントを ON にします</p>
+  <p id="step9">⑨ クーラントを ON にします（パネルのクーラントONボタン）</p>
 
   <p id="step10">⑩ MDI操作で以下のプログラムを実行します</p>
   <div class="code">
 G1 X-1.0 F0.02;
 M5;
 M11;
+  </div>
+
+  <div class="actions">
+    <button type="button" id="exportBtn">現在の設定をJSONで保存</button>
+    <button type="button" id="importBtn">JSONから復元</button>
+    <input type="file" id="jsonFile" accept="application/json" style="display:none">
   </div>
 </div>
 
@@ -208,6 +231,22 @@ const STORAGE_KEY = 'lathe_tool_setup_v1';
 function fmt(v){
   if (Number.isNaN(v)) return "";
   return v.toFixed(3);
+}
+
+function getInputs(){
+  return {
+    at: document.getElementById("at").value,
+    w: document.getElementById("w").value,
+    center: document.getElementById("center").value,
+    dia: document.getElementById("dia").value
+  };
+}
+
+function applyInputs(data){
+  if(data.at   != null) document.getElementById("at").value     = data.at;
+  if(data.w    != null) document.getElementById("w").value      = data.w;
+  if(data.center != null) document.getElementById("center").value = data.center;
+  if(data.dia  != null) document.getElementById("dia").value    = data.dia;
 }
 
 function update(){
@@ -247,12 +286,7 @@ X${xApproach}.0;`;
 
 function saveState(){
   try{
-    const data = {
-      at: document.getElementById("at").value,
-      w: document.getElementById("w").value,
-      center: document.getElementById("center").value,
-      dia: document.getElementById("dia").value
-    };
+    const data = getInputs();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }catch(e){
     console.log('saveState error:', e);
@@ -264,13 +298,52 @@ function loadState(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return;
     const data = JSON.parse(raw);
-    if(data.at   != null) document.getElementById("at").value     = data.at;
-    if(data.w    != null) document.getElementById("w").value      = data.w;
-    if(data.center != null) document.getElementById("center").value = data.center;
-    if(data.dia  != null) document.getElementById("dia").value    = data.dia;
+    applyInputs(data);
   }catch(e){
     console.log('loadState error:', e);
   }
+}
+
+// JSONとしてダウンロード
+function exportJson(){
+  try{
+    const data = getInputs();
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "lathe_tool_setup_backup.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }catch(e){
+    console.log('exportJson error:', e);
+    alert("JSONの保存に失敗しました。");
+  }
+}
+
+// JSONファイルから復元
+function importJsonFile(file){
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try{
+      const text = e.target.result;
+      const data = JSON.parse(text);
+      if(typeof data !== 'object' || data === null){
+        throw new Error("invalid");
+      }
+      applyInputs(data);
+      saveState();
+      update();
+      alert("JSONから復元しました。");
+    }catch(err){
+      console.log('importJson error:', err);
+      alert("JSONの読み込みに失敗しました。");
+    }
+  };
+  reader.readAsText(file);
 }
 
 // 入力イベント：更新＋保存
@@ -279,6 +352,24 @@ document.querySelectorAll("input").forEach(el=>{
     update();
     saveState();
   });
+});
+
+// ボタンのイベント
+document.getElementById("exportBtn").addEventListener("click", exportJson);
+
+document.getElementById("importBtn").addEventListener("click", () => {
+  document.getElementById("jsonFile").click();
+});
+
+document.getElementById("jsonFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(!file){
+    e.target.value = "";
+    return;
+  }
+  importJsonFile(file);
+  // 同じファイルをもう一度選べるようにクリア
+  e.target.value = "";
 });
 
 // 起動時：保存値を読み込み → 計算反映

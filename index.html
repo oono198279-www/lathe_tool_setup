@@ -1,140 +1,140 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>手研ぎバイト取付計算</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f5f5f5">
+  <meta charset="UTF-8">
+  <title>手研ぎバイト取付計算</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f5f5f5">
 
-<!-- PWA 用 -->
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
+  <!-- PWA 用 -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
-<style>
-  body{
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    margin: 0;
-    padding: 1rem;
-    background:#f5f5f5;
-  }
-  h1{
-    font-size:1.4rem;
-    margin:0 0 .8rem;
-  }
+  <style>
+    body{
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background:#f5f5f5;
+    }
+    h1{
+      font-size:1.4rem;
+      margin:0 0 .8rem;
+    }
 
-  /* テーブル＋画像の横並び */
-  .layout{
-    display:flex;
-    flex-wrap:nowrap;
-    gap:.75rem;
-    align-items:flex-start;
-  }
-
-  .table-wrap{
-    background:#fff;
-    padding:.5rem;
-    border-radius:.5rem;
-    box-shadow:0 0 4px rgba(0,0,0,.08);
-    flex:0 0 auto;
-  }
-
-  table{
-    border-collapse:collapse;
-    font-size:0.95rem;
-  }
-  th,td{
-    border:1px solid #ccc;
-    padding:.3rem .4rem;
-    text-align:center;
-    min-width:3.8rem;
-  }
-  th.label{
-    background:#e0e0e0;
-    width:2.5rem;
-  }
-  td.value{
-    background:#fff9c4;
-  }
-  td.value input{
-    width:6ch;
-    font-size:0.95rem;
-    border:none;
-    background:transparent;
-    text-align:right;
-  }
-  td.calc{
-    background:#fff;
-    font-weight:bold;
-  }
-  .unit{
-    font-size:.8rem;
-    color:#555;
-  }
-
-  .img-wrap{
-    background:#fff;
-    padding:.5rem;
-    border-radius:.5rem;
-    box-shadow:0 0 4px rgba(0,0,0,.08);
-    flex:0 0 130px;
-    max-width:130px;
-  }
-  .img-wrap img{
-    width:100%;
-    height:auto;
-    display:block;
-  }
-
-  .steps{
-    background:#fff;
-    padding:.8rem;
-    border-radius:.5rem;
-    box-shadow:0 0 4px rgba(0,0,0,.08);
-    margin-top:1rem;
-    font-size:0.95rem;
-    line-height:1.4;
-  }
-  .steps p{
-    margin:.2rem 0;
-  }
-
-  .code{
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    background:#111;
-    color:#0f0;
-    padding:.6rem .8rem;
-    border-radius:.3rem;
-    margin:.4rem 0;
-    white-space:pre;
-  }
-
-  .actions{
-    margin-top:.8rem;
-    display:flex;
-    flex-wrap:wrap;
-    gap:.5rem;
-  }
-  .actions button{
-    padding:.4rem .8rem;
-    font-size:.9rem;
-    border-radius:.3rem;
-    border:1px solid #888;
-    background:#f0f0f0;
-  }
-  .actions button:active{
-    background:#e0e0e0;
-  }
-
-  @media (max-width:360px){
+    /* テーブル＋画像の横並び */
     .layout{
-      flex-wrap:wrap;
+      display:flex;
+      flex-wrap:nowrap;
+      gap:.75rem;
+      align-items:flex-start;
     }
+
+    .table-wrap{
+      background:#fff;
+      padding:.5rem;
+      border-radius:.5rem;
+      box-shadow:0 0 4px rgba(0,0,0,.08);
+      flex:0 0 auto;
+    }
+
+    table{
+      border-collapse:collapse;
+      font-size:0.95rem;
+    }
+    th,td{
+      border:1px solid #ccc;
+      padding:.3rem .4rem;
+      text-align:center;
+      min-width:3.8rem;
+    }
+    th.label{
+      background:#e0e0e0;
+      width:2.5rem;
+    }
+    td.value{
+      background:#fff9c4;
+    }
+    td.value input{
+      width:6ch;
+      font-size:0.95rem;
+      border:none;
+      background:transparent;
+      text-align:right;
+    }
+    td.calc{
+      background:#fff;
+      font-weight:bold;
+    }
+    .unit{
+      font-size:.8rem;
+      color:#555;
+    }
+
     .img-wrap{
-      flex:1 1 100%;
-      max-width:none;
+      background:#fff;
+      padding:.5rem;
+      border-radius:.5rem;
+      box-shadow:0 0 4px rgba(0,0,0,.08);
+      flex:0 0 130px;
+      max-width:130px;
     }
-  }
-</style>
+    .img-wrap img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+
+    .steps{
+      background:#fff;
+      padding:.8rem;
+      border-radius:.5rem;
+      box-shadow:0 0 4px rgba(0,0,0,.08);
+      margin-top:1rem;
+      font-size:0.95rem;
+      line-height:1.4;
+    }
+    .steps p{
+      margin:.2rem 0;
+    }
+
+    .code{
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      background:#111;
+      color:#0f0;
+      padding:.6rem .8rem;
+      border-radius:.3rem;
+      margin:.4rem 0;
+      white-space:pre;
+    }
+
+    .actions{
+      margin-top:.8rem;
+      display:flex;
+      flex-wrap:wrap;
+      gap:.5rem;
+    }
+    .actions button{
+      padding:.4rem .8rem;
+      font-size:.9rem;
+      border-radius:.3rem;
+      border:1px solid #888;
+      background:#f0f0f0;
+    }
+    .actions button:active{
+      background:#e0e0e0;
+    }
+
+    @media (max-width:360px){
+      .layout{
+        flex-wrap:wrap;
+      }
+      .img-wrap{
+        flex:1 1 100%;
+        max-width:none;
+      }
+    }
+  </style>
 </head>
 <body>
 <h1>手研ぎバイト取付用計算シート</h1>
@@ -196,7 +196,7 @@
   <p id="step6">⑥ MDI操作で以下のプログラムを実行します</p>
   <div class="code" id="gcode">
 G0 X38.0;
-T0400;
+T0000;
 X3.000 Z10.0;
   </div>
   <p id="step7">⑦ 刃具の端面を鋼材に当てた状態でクランプします</p>
@@ -204,7 +204,7 @@ X3.000 Z10.0;
   <p id="step8">⑧ MDI操作で以下のプログラムを実行します</p>
   <div class="code" id="gcode8">
 X38.0;
-T0505;
+T0000;
 G99 M3 S2000;
 X4.0;
   </div>
@@ -228,6 +228,10 @@ M11;
 <script>
 const STORAGE_KEY = 'lathe_tool_setup_v1';
 
+// ⑥・⑧ の T 番（デフォルト）
+let tool6 = 'T0000';
+let tool8 = 'T0000';
+
 function fmt(v){
   if (Number.isNaN(v)) return "";
   return v.toFixed(3);
@@ -235,18 +239,29 @@ function fmt(v){
 
 function getInputs(){
   return {
-    at: document.getElementById("at").value,
-    w: document.getElementById("w").value,
+    at:     document.getElementById("at").value,
+    w:      document.getElementById("w").value,
     center: document.getElementById("center").value,
-    dia: document.getElementById("dia").value
+    dia:    document.getElementById("dia").value,
+    tool6:  tool6,
+    tool8:  tool8
   };
 }
 
+// JSON から読み込んだ値を反映
 function applyInputs(data){
-  if(data.at   != null) document.getElementById("at").value     = data.at;
-  if(data.w    != null) document.getElementById("w").value      = data.w;
-  if(data.center != null) document.getElementById("center").value = data.center;
-  if(data.dia  != null) document.getElementById("dia").value    = data.dia;
+  if(data.at      != null) document.getElementById("at").value     = data.at;
+  if(data.w       != null) document.getElementById("w").value      = data.w;
+  if(data.center  != null) document.getElementById("center").value = data.center;
+  if(data.dia     != null) document.getElementById("dia").value    = data.dia;
+
+  // T 番は "T" + 数字4桁 の時だけ採用
+  if (typeof data.tool6 === "string" && /^T\d{4}$/.test(data.tool6)) {
+    tool6 = data.tool6;
+  }
+  if (typeof data.tool8 === "string" && /^T\d{4}$/.test(data.tool8)) {
+    tool8 = data.tool8;
+  }
 }
 
 function update(){
@@ -271,14 +286,14 @@ function update(){
   // ⑥ のGコード
   const gcode =
 `G0 X38.0;
-T0400;
+${tool6};
 X${fmt(x)} Z10.0;`;
   document.getElementById("gcode").textContent = gcode;
 
   // ⑧ のGコード（材料径から計算）
   const gcode2 =
 `X38.0;
-T0505;
+${tool8};
 G99 M3 S2000;
 X${xApproach}.0;`;
   document.getElementById("gcode8").textContent = gcode2;
